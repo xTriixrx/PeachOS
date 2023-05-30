@@ -1,6 +1,6 @@
-#include "config.h"
 #include "disk.h"
 #include "kheap.h"
+#include "config.h"
 #include "config.h"
 #include "diskstreamer.h"
 

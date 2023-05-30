@@ -1,6 +1,8 @@
 #ifndef DISK_H
 #define DISK_H
 
+#include "file.h"
+
 typedef unsigned int DISK_TYPE;
 
 // Represents a real physical hard disk
@@ -8,9 +10,14 @@ typedef unsigned int DISK_TYPE;
 
 struct disk
 {
+    int id; // The id of the disk
     DISK_TYPE type;
     int sector_size;
 
+    struct filesystem* filesystem;
+
+    // The private data of our filesystem
+    void* fs_private;
 };
 
 struct disk* disk_get(int);

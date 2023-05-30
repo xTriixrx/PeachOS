@@ -1,3 +1,4 @@
+#include "fs/file.h"
 #include "io.h"
 #include "disk.h"
 #include "status.h"
@@ -42,6 +43,8 @@ void disk_search_and_init()
     memset(&primary_disk, 0, sizeof(primary_disk));
     primary_disk.type = DISK_TYPE_REAL;
     primary_disk.sector_size = SECTOR_SIZE;
+    primary_disk.id = 0;
+    primary_disk.filesystem = fs_resolve(&primary_disk);
 }
 
 struct disk* disk_get(int index)

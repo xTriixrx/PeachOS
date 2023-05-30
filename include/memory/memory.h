@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 int memcmp(void*, void*, int);
+void* memcpy(void*, void*, int);
 void* memset(void*, int, size_t);
 
 #endif

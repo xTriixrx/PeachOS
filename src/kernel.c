@@ -1,9 +1,10 @@
-#include "fs/pparser.h"
 #include "io.h"
 #include "idt.h"
 #include "lib.h"
+#include "file.h"
 #include "disk.h"
 #include "kheap.h"
+#include "string.h"
 #include "paging.h"
 #include "kernel.h"
 #include <stdint.h>
@@ -21,6 +22,9 @@ void kernel_main()
 
     // Initialize the heap
     heap_init();
+
+    // Initialize the file systems
+    fs_init();
 
     // Search and initialize the disks
     disk_search_and_init();
@@ -40,8 +44,12 @@ void kernel_main()
     // Enable the system interrupts
     enable_interrupts();
 
-    struct disk_stream* stream = diskstreamer_new(0);
-    diskstreamer_seek(stream, 0x201);
-    unsigned char c = 0;
-    diskstreamer_read(stream, &c, 1);
+    int fd = fopen("0:/hello.txt", "r");
+    
+    if (fd)
+    {
+        print("We opened hello.txt\n");
+    }
+
+    while(1) {}
 }

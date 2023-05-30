@@ -24,6 +24,10 @@
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 20
 
+#define ERROR(value) (void*)(value)
+#define ERROR_I(value) (int)(value)
+#define ISERR(value) ((int)value < 0)
+
 extern uint16_t g_term_row;
 extern uint16_t g_term_col;
 extern uint16_t* g_vd_mem;
