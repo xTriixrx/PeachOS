@@ -126,6 +126,7 @@ struct fat_private
     struct disk_stream* directory_stream;
 };
 
+int fat16_close(void*);
 int fat16_resolve(struct disk*);
 int fat16_seek(void*, uint32_t, FILE_SEEK_MODE);
 int fat16_stat(struct disk*, void*, struct file_stat*);
@@ -138,7 +139,8 @@ struct filesystem fat16_fs =
     .open = fat16_open,
     .read = fat16_read,
     .seek = fat16_seek,
-    .stat = fat16_stat
+    .stat = fat16_stat,
+    .close = fat16_close
 };
 
 struct filesystem* fat16_init()
@@ -755,4 +757,17 @@ int fat16_stat(struct disk* disk, void* private, struct file_stat* stat)
     }
 
     return res;
+}
+
+static void fat16_free_file_descriptor(struct fat_file_descriptor* desc)
+{
+    fat16_fat_item_free(desc->item);
+    free(desc);
+}
+
+int fat16_close(void* private)
+{
+    fat16_free_file_descriptor((struct fat_file_descriptor*) private);
+
+    return 0;
 }

@@ -56,6 +56,10 @@ void kernel_main()
         fread(buf, 11, 1, fd);
         buf[13] = 0x00;
         print(buf);
+
+        fclose(fd);
+
+        print("Testing close!\n");
     }
 
     while(1) {}

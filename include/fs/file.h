@@ -11,6 +11,7 @@ typedef unsigned int FILE_STAT_FLAGS;
 struct disk;
 struct file_stat;
 
+typedef int (*FS_CLOSE_FUNCTION) (void* private);
 typedef int (*FS_STAT_FUNCTION) (struct disk* disk, void* private, struct file_stat* stat);
 typedef int (*FS_SEEK_FUNCTION) (void* private, uint32_t offset, FILE_SEEK_MODE seek_mode);
 typedef void* (*FS_OPEN_FUNCTION) (struct disk* disk, struct path_part* path, FILE_MODE mode);
@@ -45,6 +46,7 @@ struct filesystem
     FS_READ_FUNCTION read;
     FS_SEEK_FUNCTION seek;
     FS_STAT_FUNCTION stat;
+    FS_CLOSE_FUNCTION close;
     char name[20];
 };
 
@@ -68,6 +70,7 @@ struct file_stat
 };
 
 void fs_init();
+int fclose(int);
 int fstat(int, struct file_stat*);
 int fseek(int, int, FILE_SEEK_MODE);
 int fopen(const char*, const char*);

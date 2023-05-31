@@ -28,6 +28,12 @@ static struct filesystem** fs_get_free_filesystem()
     return 0;
 }
 
+static void file_free_descriptor(struct file_descriptor* desc)
+{
+    file_descriptors[desc->index - 1] = 0x00;
+    free(desc);
+}
+
 static int file_new_descriptor(struct file_descriptor** desc_out)
 {
     int res = -ENOMEM;
@@ -242,6 +248,26 @@ int fstat(int fd, struct file_stat* stat)
     }
 
     res = desc->filesystem->stat(desc->disk, desc->private, stat);
+
+    return res;
+}
+
+int fclose(int fd)
+{
+    int res = 0;
+    struct file_descriptor* desc = file_get_descriptor(fd);
+
+    if (!desc)
+    {
+        return -EIO;
+    }
+
+    res = desc->filesystem->close(desc->private);
+
+    if (res == ALL_OK)
+    {
+        file_free_descriptor(desc);
+    }
 
     return res;
 }
