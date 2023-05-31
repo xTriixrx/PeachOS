@@ -215,3 +215,18 @@ int fread(void* ptr, uint32_t size, uint32_t nmemb, int fd)
 
     return res;
 }
+
+int fseek(int fd, int offset, FILE_SEEK_MODE whence)
+{
+    int res = 0;
+    struct file_descriptor* desc = file_get_descriptor(fd);
+
+    if (!desc)
+    {
+        return -EIO;
+    }
+
+    res = desc->filesystem->seek(desc->private, offset, whence);
+
+    return res;
+}
