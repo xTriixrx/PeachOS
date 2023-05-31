@@ -8,6 +8,7 @@
 #include "memory.h"
 #include "string.h"
 #include "pparser.h"
+#include <stdint.h>
 
 struct filesystem* filesystems[MAX_FILESYSTEMS];
 struct file_descriptor* file_descriptors[MAX_FILE_DESCRIPTORS];
@@ -190,6 +191,27 @@ int fopen(const char* path, const char* mode_str)
     {
         return 0;
     }
+
+    return res;
+}
+
+int fread(void* ptr, uint32_t size, uint32_t nmemb, int fd)
+{
+    int res = 0;
+
+    if (size == 0 || nmemb == 0 || fd < 1)
+    {
+        return -EINVARG;
+    }
+
+    struct file_descriptor* desc = file_get_descriptor(fd);
+
+    if (!desc)
+    {
+        return -EINVARG;
+    }
+
+    res = desc->filesystem->read(desc->disk, desc->private, size, nmemb, (char*) ptr);
 
     return res;
 }
