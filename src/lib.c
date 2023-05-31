@@ -5,6 +5,12 @@ uint16_t g_term_row = 0;
 uint16_t g_term_col = 0;
 uint16_t* g_vd_mem = (uint16_t*) (0xB8000);
 
+void panic(const char* msg)
+{
+    print(msg);
+    while (1) {};
+}
+
 void print(const char* str)
 {
     size_t len = strlen(str);

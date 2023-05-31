@@ -32,6 +32,7 @@ extern uint16_t g_term_row;
 extern uint16_t g_term_col;
 extern uint16_t* g_vd_mem;
 
+void panic(const char*);
 void print(const char*);
 void terminal_initialize();
 void term_write(char, char);
