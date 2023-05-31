@@ -230,3 +230,18 @@ int fseek(int fd, int offset, FILE_SEEK_MODE whence)
 
     return res;
 }
+
+int fstat(int fd, struct file_stat* stat)
+{
+    int res = 0;
+    struct file_descriptor* desc = file_get_descriptor(fd);
+
+    if (!desc)
+    {
+        return -EIO;
+    }
+
+    res = desc->filesystem->stat(desc->disk, desc->private, stat);
+
+    return res;
+}

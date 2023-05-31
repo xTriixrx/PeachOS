@@ -48,6 +48,8 @@ void kernel_main()
     
     if (fd)
     {
+        struct file_stat s;
+        fstat(fd, &s);
         print("\nWe opened hello.txt\n");
         char buf[14];
         fseek(fd, 2, SEEK_SET);

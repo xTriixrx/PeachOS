@@ -6,8 +6,12 @@
 
 typedef unsigned int FILE_MODE;
 typedef unsigned int FILE_SEEK_MODE;
+typedef unsigned int FILE_STAT_FLAGS;
 
 struct disk;
+struct file_stat;
+
+typedef int (*FS_STAT_FUNCTION) (struct disk* disk, void* private, struct file_stat* stat);
 typedef int (*FS_SEEK_FUNCTION) (void* private, uint32_t offset, FILE_SEEK_MODE seek_mode);
 typedef void* (*FS_OPEN_FUNCTION) (struct disk* disk, struct path_part* path, FILE_MODE mode);
 typedef int (*FS_READ_FUNCTION) (struct disk* disk, void* private, uint32_t size, uint32_t nmemb, char* out);
@@ -28,6 +32,11 @@ enum
     FILE_MODE_INVALID
 };
 
+enum
+{
+    FILE_STAT_READ_ONLY = 0b00000001
+};
+
 struct filesystem
 {
     // Filesystem should return zero from resolve if the provided disk is using its filesystem
@@ -35,6 +44,7 @@ struct filesystem
     FS_RESOLVE_FUNCTION resolve;
     FS_READ_FUNCTION read;
     FS_SEEK_FUNCTION seek;
+    FS_STAT_FUNCTION stat;
     char name[20];
 };
 
@@ -51,7 +61,14 @@ struct file_descriptor
     struct disk* disk;
 };
 
+struct file_stat
+{
+    FILE_STAT_FLAGS flags;
+    uint32_t filesize;
+};
+
 void fs_init();
+int fstat(int, struct file_stat*);
 int fseek(int, int, FILE_SEEK_MODE);
 int fopen(const char*, const char*);
 int fread(void*, uint32_t, uint32_t, int);
