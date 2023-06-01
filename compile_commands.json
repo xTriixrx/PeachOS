@@ -6,6 +6,7 @@
       "include/",
       "-Iinclude/gdt",
       "-Iinclude/idt",
+      "-Iinclude/task",
       "-Iinclude/io",
       "-Iinclude/memory",
       "-Iinclude/memory/heap",

@@ -1,5 +1,5 @@
-#include "gdt/gdt.h"
 #include "io.h"
+#include "tss.h"
 #include "gdt.h"
 #include "idt.h"
 #include "lib.h"
@@ -17,11 +17,15 @@
 
 static struct paging_4gb_chunk* kernel_chunk = 0;
 
+struct tss tss;
 struct gdt gdt_real[TOTAL_GDT_SEGMENTS];
 struct gdt_structured gdt_structured[TOTAL_GDT_SEGMENTS] = {
     {.base = 0x00, .limit = 0x00, .type = 0x00 }, // NULL Segment
     {.base = 0x00, .limit = 0xFFFFFFFF, .type = 0x9A }, // Kernel Code Segment
     {.base = 0x00, .limit = 0xFFFFFFFF, .type = 0x92 }, // Kernel Data Segment
+    {.base = 0x00, .limit = 0xFFFFFFFF, .type = 0xF8 }, // User Code Segment
+    {.base = 0x00, .limit = 0xFFFFFFFF, .type = 0xF2}, // User Data Segment
+    {.base = (uint32_t) &tss, .limit = sizeof(tss), .type = 0xE9}, // TSS Segment
 };
 
 void kernel_main()
@@ -49,6 +53,14 @@ void kernel_main()
     // Initialize the interrupt descriptor table
     idt_init();
 
+    // Set up the TSS
+    memset(&tss, 0x00, sizeof(tss));
+    tss.esp0 = 0x600000; // Where Kernel Stack is located
+    tss.ss0 = KERNEL_DATA_SELECTOR;
+
+    // Load the TSS
+    tss_load(0x28); // 0x28 is the offset in the GDT
+    
     // Setup paging
     kernel_chunk = paging_new_4gb(PAGING_IS_WRITEABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
 

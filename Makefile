@@ -1,6 +1,7 @@
 FILES = obj/kernel.asm.o obj/kernel.o obj/lib.o obj/io/io.asm.o obj/idt/idt.asm.o obj/idt/idt.o obj/memory/memory.o \
 	obj/memory/heap/kheap.o obj/memory/heap/heap.o obj/memory/paging/paging.o obj/memory/paging/paging.asm.o obj/disk/disk.o \
-	obj/string/string.o obj/fs/pparser.o obj/disk/diskstreamer.o obj/fs/file.o obj/fs/fat/fat16.o obj/gdt/gdt.asm.o obj/gdt/gdt.o
+	obj/string/string.o obj/fs/pparser.o obj/disk/diskstreamer.o obj/fs/file.o obj/fs/fat/fat16.o obj/gdt/gdt.asm.o obj/gdt/gdt.o \
+	obj/task/tss.asm.o
 
 INCLUDES = -I include/
 FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer \
@@ -29,8 +30,8 @@ obj/kernel.asm.o: src/kernel.asm
 	nasm -f elf -g src/kernel.asm -o $@
 
 obj/kernel.o: src/kernel.c
-	i686-elf-gcc ${INCLUDES} -Iinclude/gdt -Iinclude/idt -Iinclude/io -Iinclude/memory -Iinclude/memory/heap -Iinclude/memory/paging \
-	-Iinclude/disk -Iinclude/fs -Iinclude/string ${FLAGS} -std=gnu99 -c src/kernel.c -o $@
+	i686-elf-gcc ${INCLUDES} -Iinclude/gdt -Iinclude/idt -Iinclude/task -Iinclude/io -Iinclude/memory -Iinclude/memory/heap \
+	-Iinclude/memory/paging -Iinclude/disk -Iinclude/fs -Iinclude/string ${FLAGS} -std=gnu99 -c src/kernel.c -o $@
 
 obj/lib.o: src/lib.c
 	i686-elf-gcc ${INCLUDES} -Iinclude/string ${FLAGS} -std=gnu99 -c src/lib.c -o $@
@@ -95,6 +96,10 @@ obj/gdt/gdt.o: src/gdt/gdt.c
 obj/gdt/gdt.asm.o: src/gdt/gdt.asm
 	mkdir -p obj/gdt
 	nasm -f elf -g src/gdt/gdt.asm -o $@
+
+obj/task/tss.asm.o: src/task/tss.asm
+	mkdir -p obj/task
+	nasm -f elf -g src/task/tss.asm -o $@
 
 obj/io/io.asm.o: src/io/io.asm
 	mkdir -p obj/io
