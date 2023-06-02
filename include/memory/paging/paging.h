@@ -23,6 +23,7 @@ void enable_paging();
 void paging_switch(uint32_t*);
 bool paging_is_aligned(void*);
 int paging_set(uint32_t*, void*, uint32_t);
+void paging_free_4gb(struct paging_4gb_chunk*);
 struct paging_4gb_chunk* paging_new_4gb(uint8_t);
 uint32_t* paging_4gb_chunk_get_directory(struct paging_4gb_chunk*);
 
