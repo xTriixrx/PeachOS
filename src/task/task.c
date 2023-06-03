@@ -1,3 +1,4 @@
+#include "config.h"
 #include "lib.h"
 #include "task.h"
 #include "kheap.h"
@@ -17,6 +18,31 @@ struct task* task_current()
     return current_task;
 }
 
+int task_switch(struct task* task)
+{
+    current_task = task;
+    paging_switch(task->page_directory);
+    return 0;
+}
+
+int task_page()
+{
+    user_registers();
+    task_switch(current_task);
+    return 0;
+}
+
+void task_run_first_ever_task()
+{
+    if (!current_task)
+    {
+        panic("task_run_first_ever_task(): No current task exists!\n");
+    }
+
+    task_switch(task_head);
+    task_return(&task_head->registers);
+}
+
 int task_init(struct task* task, struct process* process)
 {
     memset(task, 0, sizeof(struct task));
@@ -29,6 +55,7 @@ int task_init(struct task* task, struct process* process)
 
     task->registers.ip = PROGRAM_VIRTUAL_ADDRESS;
     task->registers.ss = USER_DATA_SEGMENT;
+    task->registers.cs = USER_CODE_SEGMENT;
     task->registers.esp = PROGRAM_VIRTUAL_STACK_ADDRESS_START;
     
     task->process = process;
@@ -102,6 +129,7 @@ struct task* task_new(struct process* process)
     {
         task_head = task;
         task_tail = task;
+        current_task = task;
         return task;
     }
 

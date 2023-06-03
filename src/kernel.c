@@ -3,6 +3,7 @@
 #include "gdt.h"
 #include "idt.h"
 #include "lib.h"
+#include "task.h"
 #include "file.h"
 #include "disk.h"
 #include "kheap.h"
@@ -12,6 +13,8 @@
 #include "paging.h"
 #include "kernel.h"
 #include <stdint.h>
+#include "status.h"
+#include "process.h"
 #include "pparser.h"
 #include "diskstreamer.h"
 
@@ -65,31 +68,23 @@ void kernel_main()
     kernel_chunk = paging_new_4gb(PAGING_IS_WRITEABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
 
     // Switch to kernel paging chunk
-    paging_switch(paging_4gb_chunk_get_directory(kernel_chunk));
+    paging_switch(kernel_chunk);
 
     // Enable Paging
     enable_paging();
 
-    // Enable the system interrupts
-    enable_interrupts();
-
-    int fd = fopen("0:/hello.txt", "r");
+    struct process* process = 0;
+    int res = process_load("0:/blank.bin", &process);
     
-    if (fd)
+    if (res != ALL_OK)
     {
-        struct file_stat s;
-        fstat(fd, &s);
-        print("\nWe opened hello.txt\n");
-        char buf[14];
-        fseek(fd, 2, SEEK_SET);
-        fread(buf, 11, 1, fd);
-        buf[13] = 0x00;
-        print(buf);
-
-        fclose(fd);
-
-        print("Testing close!\n");
+        panic("Failed to load blank.bin!");
     }
+
+    task_run_first_ever_task();
+
+    // Enable the system interrupts
+    //enable_interrupts();
 
     while(1) {}
 }

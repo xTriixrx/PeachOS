@@ -27,4 +27,6 @@ struct process
     uint32_t size;
 };
 
+int process_load(const char*, struct process**);
+
 #endif

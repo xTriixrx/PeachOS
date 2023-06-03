@@ -1,14 +1,14 @@
 FILES = obj/kernel.asm.o obj/kernel.o obj/lib.o obj/io/io.asm.o obj/idt/idt.asm.o obj/idt/idt.o obj/memory/memory.o \
 	obj/memory/heap/kheap.o obj/memory/heap/heap.o obj/memory/paging/paging.o obj/memory/paging/paging.asm.o obj/disk/disk.o \
 	obj/string/string.o obj/fs/pparser.o obj/disk/diskstreamer.o obj/fs/file.o obj/fs/fat/fat16.o obj/gdt/gdt.asm.o obj/gdt/gdt.o \
-	obj/task/tss.asm.o obj/task/task.o obj/task/process.o
+	obj/task/tss.asm.o obj/task/task.o obj/task/process.o obj/task/task.asm.o
 
 INCLUDES = -I include/
 FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer \
 	-finline-functions -Wno-unused-function -Fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib \
 	-nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 
-all: bin/boot.bin bin/kernel.bin
+all: bin/boot.bin bin/kernel.bin user_programs
 	rm -rf bin/os.bin
 	dd if=bin/boot.bin >> bin/os.bin
 	dd if=bin/kernel.bin >> bin/os.bin
@@ -17,6 +17,7 @@ all: bin/boot.bin bin/kernel.bin
 	sudo mount -t vfat ./bin/os.bin /mnt/d
 # Copy a file over
 	sudo cp ./hello.txt /mnt/d
+	sudo cp ./programs/blank/blank.bin /mnt/d
 	sudo umount /mnt/d
 
 bin/kernel.bin : ${FILES}
@@ -31,7 +32,7 @@ obj/kernel.asm.o: src/kernel.asm
 
 obj/kernel.o: src/kernel.c
 	i686-elf-gcc ${INCLUDES} -Iinclude/gdt -Iinclude/idt -Iinclude/task -Iinclude/io -Iinclude/memory -Iinclude/memory/heap \
-	-Iinclude/memory/paging -Iinclude/disk -Iinclude/fs -Iinclude/string ${FLAGS} -std=gnu99 -c src/kernel.c -o $@
+	-Iinclude/memory/paging -Iinclude/disk -Iinclude/fs -Iinclude/string -Iinclude/task ${FLAGS} -std=gnu99 -c src/kernel.c -o $@
 
 obj/lib.o: src/lib.c
 	i686-elf-gcc ${INCLUDES} -Iinclude/string ${FLAGS} -std=gnu99 -c src/lib.c -o $@
@@ -109,10 +110,21 @@ obj/task/tss.asm.o: src/task/tss.asm
 	mkdir -p obj/task
 	nasm -f elf -g src/task/tss.asm -o $@
 
+obj/task/task.asm.o: src/task/task.asm
+	mkdir -p obj/task
+	nasm -f elf -g src/task/task.asm -o $@
+
 obj/io/io.asm.o: src/io/io.asm
 	mkdir -p obj/io
 	nasm -f elf -g src/io/io.asm -o $@
 
-clean:
+
+user_programs:
+	cd programs/blank && ${MAKE} all
+
+user_programs_clean:
+	cd programs/blank && ${MAKE} clean
+
+clean: user_programs_clean
 	rm -rf bin/*
 	rm -rf obj/*
