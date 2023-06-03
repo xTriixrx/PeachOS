@@ -10,6 +10,7 @@ int tonumericdigit(char);
 size_t strlen(const char*);
 size_t strnlen(const char*, int);
 char* strcpy(char*, const char*);
+char* strncpy(char*, const char*, int);
 int strncmp(const char*, const char*, int);
 int istrncmp(const char*, const char*, int);
 int strnlen_terminator(const char*, int, char);

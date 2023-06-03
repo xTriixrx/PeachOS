@@ -22,9 +22,13 @@ struct paging_4gb_chunk
 void enable_paging();
 void paging_switch(uint32_t*);
 bool paging_is_aligned(void*);
+void* paging_align_address(void*);
 int paging_set(uint32_t*, void*, uint32_t);
+int paging_map(uint32_t*, void*, void*, int);
 void paging_free_4gb(struct paging_4gb_chunk*);
 struct paging_4gb_chunk* paging_new_4gb(uint8_t);
+int paging_map_to(uint32_t*, void*, void*, void*, int);
+int paging_map_range(uint32_t*, void*, void*, int, int);
 uint32_t* paging_4gb_chunk_get_directory(struct paging_4gb_chunk*);
 
 #endif

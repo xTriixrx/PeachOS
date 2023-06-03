@@ -1,7 +1,7 @@
 FILES = obj/kernel.asm.o obj/kernel.o obj/lib.o obj/io/io.asm.o obj/idt/idt.asm.o obj/idt/idt.o obj/memory/memory.o \
 	obj/memory/heap/kheap.o obj/memory/heap/heap.o obj/memory/paging/paging.o obj/memory/paging/paging.asm.o obj/disk/disk.o \
 	obj/string/string.o obj/fs/pparser.o obj/disk/diskstreamer.o obj/fs/file.o obj/fs/fat/fat16.o obj/gdt/gdt.asm.o obj/gdt/gdt.o \
-	obj/task/tss.asm.o obj/task/task.o
+	obj/task/tss.asm.o obj/task/task.o obj/task/process.o
 
 INCLUDES = -I include/
 FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer \
@@ -96,6 +96,10 @@ obj/gdt/gdt.o: src/gdt/gdt.c
 obj/task/task.o: src/task/task.c
 	mkdir -p obj/task
 	i686-elf-gcc ${INCLUDES} -Iinclude/task -Iinclude/memory -Iinclude/memory/heap -Iinclude/memory/paging ${FLAGS} -std=gnu99 -c src/task/task.c -o $@
+
+obj/task/process.o: src/task/process.c
+	mkdir -p obj/task
+	i686-elf-gcc ${INCLUDES} -Iinclude/fs -Iinclude/task -Iinclude/string -Iinclude/memory -Iinclude/memory/heap -Iinclude/memory/paging ${FLAGS} -std=gnu99 -c src/task/process.c -o $@
 
 obj/gdt/gdt.asm.o: src/gdt/gdt.asm
 	mkdir -p obj/gdt
