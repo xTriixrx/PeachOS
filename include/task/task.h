@@ -2,8 +2,11 @@
 #define TASK_H
 
 #include "config.h"
-#include "paging.h"
 #include <stdint.h>
+#include "idt/idt.h"
+#include "memory/paging/paging.h"
+
+struct interrupt_frame;
 
 struct registers
 {
@@ -52,7 +55,11 @@ struct task* task_new(struct process*);
 void task_run_first_ever_task();
 
 void user_registers();
+int task_page_task(struct task* task);
 void task_return(struct registers* regs);
+void* task_get_stack_item(struct task* task, int index);
+void task_current_save_state(struct interrupt_frame* frame);
 void restore_general_purpose_registers(struct registers* regs);
+int copy_string_from_task(struct task* task, void* virtual, void* physical, int max);
 
 #endif

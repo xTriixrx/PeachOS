@@ -1,7 +1,7 @@
 FILES = obj/kernel.asm.o obj/kernel.o obj/lib.o obj/io/io.asm.o obj/idt/idt.asm.o obj/idt/idt.o obj/memory/memory.o \
 	obj/memory/heap/kheap.o obj/memory/heap/heap.o obj/memory/paging/paging.o obj/memory/paging/paging.asm.o obj/disk/disk.o \
 	obj/string/string.o obj/fs/pparser.o obj/disk/diskstreamer.o obj/fs/file.o obj/fs/fat/fat16.o obj/gdt/gdt.asm.o obj/gdt/gdt.o \
-	obj/task/tss.asm.o obj/task/task.o obj/task/process.o obj/task/task.asm.o
+	obj/task/tss.asm.o obj/task/task.o obj/task/process.o obj/task/task.asm.o obj/isr80h/isr80h.o obj/isr80h/misc.o obj/isr80h/io.o
 
 INCLUDES = -I include/
 FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer \
@@ -101,6 +101,18 @@ obj/task/task.o: src/task/task.c
 obj/task/process.o: src/task/process.c
 	mkdir -p obj/task
 	i686-elf-gcc ${INCLUDES} -Iinclude/fs -Iinclude/task -Iinclude/string -Iinclude/memory -Iinclude/memory/heap -Iinclude/memory/paging ${FLAGS} -std=gnu99 -c src/task/process.c -o $@
+
+obj/isr80h/isr80h.o: src/isr80h/isr80h.c
+	mkdir -p obj/isr80h
+	i686-elf-gcc ${INCLUDES} -Iinclude/idt -Iinclude/isr80h ${FLAGS} -std=gnu99 -c src/isr80h/isr80h.c -o $@
+
+obj/isr80h/misc.o: src/isr80h/misc.c
+	mkdir -p obj/isr80h
+	i686-elf-gcc ${INCLUDES} -Iinclude/idt -Iinclude/isr80h ${FLAGS} -std=gnu99 -c src/isr80h/misc.c -o $@
+
+obj/isr80h/io.o: src/isr80h/io.c
+	mkdir -p obj/isr80h
+	i686-elf-gcc ${INCLUDES} -Iinclude/task -Iinclude/isr80h ${FLAGS} -std=gnu99 -c src/isr80h/io.c -o $@
 
 obj/gdt/gdt.asm.o: src/gdt/gdt.asm
 	mkdir -p obj/gdt

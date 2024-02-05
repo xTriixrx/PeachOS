@@ -1,6 +1,8 @@
 [BITS 32] ; All code below this will be seen as 32 bit code
 
 global _start ; Exports _start symbol
+global kernel_registers
+
 extern kernel_main
 
 CODE_SEG equ 0x08
@@ -36,6 +38,14 @@ _start:
     call kernel_main
 
     jmp $
+
+kernel_registers:
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov gs, ax
+    mov fs, ax
+    ret
 
 ; Fill at least 512 bytes of data, whatever bytes are not used by the program are filled with zeros with this instruction
 times 512-($ - $$) db 0

@@ -17,8 +17,15 @@
 #include "process.h"
 #include "pparser.h"
 #include "diskstreamer.h"
+#include "isr80h/isr80h.h"
 
 static struct paging_4gb_chunk* kernel_chunk = 0;
+
+void kernel_page()
+{
+    kernel_registers();
+    paging_switch(kernel_chunk);
+}
 
 struct tss tss;
 struct gdt gdt_real[TOTAL_GDT_SEGMENTS];
@@ -34,9 +41,6 @@ struct gdt_structured gdt_structured[TOTAL_GDT_SEGMENTS] = {
 void kernel_main()
 {
     terminal_initialize();
-    
-    const char* hello = "Hello World!\nThis is Vincent!\tHow are you?\n";
-    print(hello);
 
     memset(gdt_real, 0x00, sizeof(gdt_real));
     gdt_structured_to_gdt(gdt_real, gdt_structured, TOTAL_GDT_SEGMENTS);
@@ -72,6 +76,9 @@ void kernel_main()
 
     // Enable Paging
     enable_paging();
+
+    // Register kernel commands
+    isr80h_register_commands();
 
     struct process* process = 0;
     int res = process_load("0:/blank.bin", &process);
