@@ -36,6 +36,8 @@ struct process
 
 struct process* process_get(int);
 struct process* process_current();
+int process_switch(struct process*);
 int process_load(const char*, struct process**);
+int process_load_switch(const char*, struct process**);
 
 #endif

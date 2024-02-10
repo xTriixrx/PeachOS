@@ -21,6 +21,24 @@ void print(const char* str)
     }
 }
 
+void term_backspace()
+{
+    if (g_term_row == 0 && g_term_col == 0)
+    {
+        return;
+    }
+
+    if (g_term_col == 0)
+    {
+        g_term_row -=1;
+        g_term_col = VGA_WIDTH;
+    }
+
+    g_term_col -= 1;
+    term_write(' ', WHITE);
+    g_term_col -= 1;
+}
+
 void term_write(char c, char color)
 {
     if (c == '\n')
@@ -32,6 +50,12 @@ void term_write(char c, char color)
     else if (c == '\t')
     {
         g_term_col += 4;
+        return;
+    }
+
+    if (c == 0x08)
+    {
+        term_backspace();
         return;
     }
 

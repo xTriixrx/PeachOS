@@ -1,6 +1,7 @@
 #include "status.h"
 #include "task/task.h"
 #include "task/process.h"
+#include "keyboard/ps2.h"
 #include "keyboard/keyboard.h"
 
 static struct keyboard* keyboard_list_head = 0;
@@ -8,7 +9,7 @@ static struct keyboard* keyboard_list_last = 0;
 
 void keyboard_init()
 {
-
+    keyboard_insert(ps2_init());
 }
 
 int keyboard_insert(struct keyboard* keyboard)
@@ -48,7 +49,7 @@ void keyboard_push(char c)
 {
     struct process* process = process_current();
 
-    if (!process)
+    if (!process || c == 0)
     {
         return;
     }
