@@ -18,6 +18,7 @@
 #include "pparser.h"
 #include "diskstreamer.h"
 #include "isr80h/isr80h.h"
+#include "keyboard/keyboard.h"
 
 static struct paging_4gb_chunk* kernel_chunk = 0;
 
@@ -79,6 +80,9 @@ void kernel_main()
 
     // Register kernel commands
     isr80h_register_commands();
+
+    // Initialize all the system keyboards
+    keyboard_init();
 
     struct process* process = 0;
     int res = process_load("0:/blank.bin", &process);

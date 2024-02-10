@@ -1,7 +1,8 @@
 FILES = obj/kernel.asm.o obj/kernel.o obj/lib.o obj/io/io.asm.o obj/idt/idt.asm.o obj/idt/idt.o obj/memory/memory.o \
 	obj/memory/heap/kheap.o obj/memory/heap/heap.o obj/memory/paging/paging.o obj/memory/paging/paging.asm.o obj/disk/disk.o \
 	obj/string/string.o obj/fs/pparser.o obj/disk/diskstreamer.o obj/fs/file.o obj/fs/fat/fat16.o obj/gdt/gdt.asm.o obj/gdt/gdt.o \
-	obj/task/tss.asm.o obj/task/task.o obj/task/process.o obj/task/task.asm.o obj/isr80h/isr80h.o obj/isr80h/misc.o obj/isr80h/io.o
+	obj/task/tss.asm.o obj/task/task.o obj/task/process.o obj/task/task.asm.o obj/isr80h/isr80h.o obj/isr80h/misc.o obj/isr80h/io.o \
+	obj/keyboard/keyboard.o
 
 INCLUDES = -I include/
 FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer \
@@ -32,7 +33,8 @@ obj/kernel.asm.o: src/kernel.asm
 
 obj/kernel.o: src/kernel.c
 	i686-elf-gcc ${INCLUDES} -Iinclude/gdt -Iinclude/idt -Iinclude/task -Iinclude/io -Iinclude/memory -Iinclude/memory/heap \
-	-Iinclude/memory/paging -Iinclude/disk -Iinclude/fs -Iinclude/string -Iinclude/task ${FLAGS} -std=gnu99 -c src/kernel.c -o $@
+	-Iinclude/memory/paging -Iinclude/disk -Iinclude/fs -Iinclude/string -Iinclude/task -Iinclude/keyboard \
+	${FLAGS} -std=gnu99 -c src/kernel.c -o $@
 
 obj/lib.o: src/lib.c
 	i686-elf-gcc ${INCLUDES} -Iinclude/string ${FLAGS} -std=gnu99 -c src/lib.c -o $@
@@ -113,6 +115,10 @@ obj/isr80h/misc.o: src/isr80h/misc.c
 obj/isr80h/io.o: src/isr80h/io.c
 	mkdir -p obj/isr80h
 	i686-elf-gcc ${INCLUDES} -Iinclude/task -Iinclude/isr80h ${FLAGS} -std=gnu99 -c src/isr80h/io.c -o $@
+
+obj/keyboard/keyboard.o: src/keyboard/keyboard.c
+	mkdir -p obj/keyboard
+	i686-elf-gcc ${INCLUDES} -Iinclude/task -Iinclude/keyboard ${FLAGS} -std=gnu99 -c src/keyboard/keyboard.c -o $@
 
 obj/gdt/gdt.asm.o: src/gdt/gdt.asm
 	mkdir -p obj/gdt
