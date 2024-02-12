@@ -100,7 +100,8 @@ obj/gdt/gdt.o: src/gdt/gdt.c
 
 obj/task/task.o: src/task/task.c
 	mkdir -p obj/task
-	i686-elf-gcc ${INCLUDES} -Iinclude/task -Iinclude/memory -Iinclude/memory/heap -Iinclude/memory/paging ${FLAGS} -std=gnu99 -c src/task/task.c -o $@
+	i686-elf-gcc ${INCLUDES} -Iinclude/task -Iinclude/memory -Iinclude/memory/heap -Iinclude/memory/paging -Iinclude/loader/formats \
+		${FLAGS} -std=gnu99 -c src/task/task.c -o $@
 
 obj/task/process.o: src/task/process.c
 	mkdir -p obj/task

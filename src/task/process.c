@@ -9,6 +9,7 @@
 #include "string.h"
 #include "process.h"
 #include "loader/formats/elfloader.h"
+#include <elf.h>
 
 struct process* current_process = 0;
 static struct process* processes[MAX_PROCESSES] = {};
@@ -119,10 +120,29 @@ static int process_map_elf(struct process* process)
     int res = 0;
 
     struct elf_file* elf_file = process->elf_file;
-    res = paging_map_to(process->task->page_directory, paging_align_to_lower_page(elf_virtual_base(elf_file)),
-        elf_physical_base(elf_file), paging_align_address(elf_physical_end(elf_file)),
-        PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL | PAGING_IS_WRITEABLE);
-    
+    struct elf_header* header = elf_header(elf_file);
+    struct elf32_phdr* phdrs = elf_pheader(header);
+
+    for (int i = 0; i < header->e_phnum; i++)
+    {
+        struct elf32_phdr* phdr = &phdrs[i];
+        void* phdr_physical_address = elf_phdr_physical_address(elf_file, phdr);
+        int flags = PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL;
+
+        if (phdr->p_flags & PF_W)
+        {
+            flags |= PAGING_IS_WRITEABLE;
+        }
+
+        res = paging_map_to(process->task->page_directory, paging_align_to_lower_page((void*) phdr->p_vaddr),
+            paging_align_to_lower_page(phdr_physical_address), paging_align_address(phdr_physical_address + phdr->p_filesz), flags);
+
+        if (ISERR(res))
+        {
+            break;
+        }
+    }
+
     return res;
 }
 
@@ -217,7 +237,7 @@ int process_load_for_slot(const char* filename, struct process** process, int pr
         return -ENOMEM;
     }
 
-    strncmp(_process->filename, filename, sizeof(_process->filename));
+    strncpy(_process->filename, filename, sizeof(_process->filename));
     _process->stack = program_stack_ptr;
     _process->id = process_slot;
 
