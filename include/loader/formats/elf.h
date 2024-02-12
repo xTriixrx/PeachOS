@@ -39,7 +39,7 @@
 #define ET_DYN 3
 #define ET_CORE 4
 
-#define ET_NIDENT 16
+#define EI_NIDENT 16
 #define EI_CLASS 4
 #define EI_DATA 5
 
@@ -87,7 +87,7 @@ struct elf32_shdr
 
 struct elf_header
 {
-    unsigned char e_ident[ET_NIDENT];
+    unsigned char e_ident[EI_NIDENT];
     elf32_half e_type;
     elf32_half e_machine;
     elf32_word e_version;
@@ -101,7 +101,7 @@ struct elf_header
     elf32_half e_shentsize;
     elf32_half e_shnum;
     elf32_half e_shstrndx;
-} __attribute((packed));
+} __attribute__((packed));
 
 struct elf32_dyn
 {
@@ -111,7 +111,7 @@ struct elf32_dyn
         elf32_word d_val;
         elf32_addr d_ptr;
     } d_un;
-} __attribute((packed));
+} __attribute__((packed));
 
 struct elf32_sym
 {
@@ -121,7 +121,7 @@ struct elf32_sym
     unsigned char st_info;
     unsigned char st_other;
     elf32_half st_shndx;
-} __attribute((packed));
+} __attribute__((packed));
 
 uint32_t elf_get_entry(struct elf_header*);
 void* elf_get_entry_ptr(struct elf_header*);

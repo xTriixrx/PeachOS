@@ -37,7 +37,11 @@ struct elf_file
     void* physical_end_address;
 };
 
-int elf_close(struct elf_file*);
+void elf_close(struct elf_file*);
+void* elf_virtual_end(struct elf_file*);
+void* elf_virtual_base(struct elf_file*);
+void* elf_physical_end(struct elf_file*);
+void* elf_physical_base(struct elf_file*);
 int elf_load(const char*, struct elf_file**);
 
 #endif

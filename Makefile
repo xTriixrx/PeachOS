@@ -2,7 +2,7 @@ FILES = obj/kernel.asm.o obj/kernel.o obj/lib.o obj/io/io.asm.o obj/idt/idt.asm.
 	obj/memory/heap/kheap.o obj/memory/heap/heap.o obj/memory/paging/paging.o obj/memory/paging/paging.asm.o obj/disk/disk.o \
 	obj/string/string.o obj/fs/pparser.o obj/disk/diskstreamer.o obj/fs/file.o obj/fs/fat/fat16.o obj/gdt/gdt.asm.o obj/gdt/gdt.o \
 	obj/task/tss.asm.o obj/task/task.o obj/task/process.o obj/task/task.asm.o obj/isr80h/isr80h.o obj/isr80h/misc.o obj/isr80h/io.o \
-	obj/keyboard/keyboard.o obj/keyboard/ps2.o
+	obj/keyboard/keyboard.o obj/keyboard/ps2.o obj/loader/formats/elf.o obj/loader/formats/elfloader.o
 
 INCLUDES = -I include/
 FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer \
@@ -26,9 +26,11 @@ bin/kernel.bin : ${FILES}
 	i686-elf-gcc ${FLAGS} -T src/linker.ld -o bin/kernel.bin -ffreestanding -O0 -nostdlib obj/kernelfull.o
 
 bin/boot.bin: src/boot/boot.asm
+	mkdir -p bin
 	nasm -f bin src/boot/boot.asm -o $@
 
 obj/kernel.asm.o: src/kernel.asm
+	mkdir -p obj
 	nasm -f elf -g src/kernel.asm -o $@
 
 obj/kernel.o: src/kernel.c
@@ -102,7 +104,8 @@ obj/task/task.o: src/task/task.c
 
 obj/task/process.o: src/task/process.c
 	mkdir -p obj/task
-	i686-elf-gcc ${INCLUDES} -Iinclude/fs -Iinclude/task -Iinclude/string -Iinclude/memory -Iinclude/memory/heap -Iinclude/memory/paging ${FLAGS} -std=gnu99 -c src/task/process.c -o $@
+	i686-elf-gcc ${INCLUDES} -Iinclude/fs -Iinclude/task -Iinclude/string -Iinclude/memory -Iinclude/memory/heap -Iinclude/memory/paging \
+		-Iinclude/loader/formats ${FLAGS} -std=gnu99 -c src/task/process.c -o $@
 
 obj/isr80h/isr80h.o: src/isr80h/isr80h.c
 	mkdir -p obj/isr80h
@@ -124,6 +127,15 @@ obj/keyboard/ps2.o: src/keyboard/ps2.c
 	mkdir -p obj/keyboard
 	i686-elf-gcc ${INCLUDES} -Iinclude/io -Iinclude/keyboard ${FLAGS} -std=gnu99 -c src/keyboard/ps2.c -o $@
 
+obj/loader/formats/elf.o: src/loader/formats/elf.c
+	mkdir -p obj/loader/formats
+	i686-elf-gcc ${INCLUDES} -Iinclude/loader/formats ${FLAGS} -std=gnu99 -c src/loader/formats/elf.c -o $@
+
+obj/loader/formats/elfloader.o: src/loader/formats/elfloader.c
+	mkdir -p obj/loader/formats
+	i686-elf-gcc ${INCLUDES} -Iinclude/fs -Iinclude/string -Iinclude/memory -Iinclude/memory/heap -Iinclude/memory/paging \
+		-Iinclude/loader/formats ${FLAGS} -std=gnu99 -c src/loader/formats/elfloader.c -o $@
+
 obj/gdt/gdt.asm.o: src/gdt/gdt.asm
 	mkdir -p obj/gdt
 	nasm -f elf -g src/gdt/gdt.asm -o $@
@@ -139,7 +151,6 @@ obj/task/task.asm.o: src/task/task.asm
 obj/io/io.asm.o: src/io/io.asm
 	mkdir -p obj/io
 	nasm -f elf -g src/io/io.asm -o $@
-
 
 user_programs:
 	cd programs/blank && ${MAKE} all

@@ -23,6 +23,7 @@ void enable_paging();
 bool paging_is_aligned(void*);
 void* paging_align_address(void*);
 uint32_t paging_get(uint32_t*, void*);
+void* paging_align_to_lower_page(void*);
 int paging_set(uint32_t*, void*, uint32_t);
 void paging_switch(struct paging_4gb_chunk*);
 void paging_free_4gb(struct paging_4gb_chunk*);

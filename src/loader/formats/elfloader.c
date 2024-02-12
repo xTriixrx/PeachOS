@@ -10,11 +10,11 @@
 #include "memory/paging/paging.h"
 #include "loader/formats/elfloader.h"
 
-const char* elf_signature[] = {0x7F, 'E', 'L', 'F'};
+const char elf_signature[] = {0x7F, 'E', 'L', 'F'};
 
 static bool elf_valid_signature(void* buffer)
 {
-    return memcpy(buffer, (void*) elf_signature, sizeof(elf_signature)) == 0;
+    return memcmp(buffer, (void*) elf_signature, sizeof(elf_signature)) == 0;
 }
 
 static bool elf_valid_class(struct elf_header* header)
@@ -102,7 +102,7 @@ int elf_validate_loaded(struct elf_header* header)
 {
     return (elf_valid_signature(header) && elf_valid_class(header) \
     && elf_valid_encoding(header) && elf_has_program_header(header)) \
-    ? ALL_OK : -EINVARG;
+    ? ALL_OK : -EINFORMAT;
 }
 
 int elf_process_phdr_pt_load(struct elf_file* elf_file, struct elf32_phdr* phdr)
@@ -134,14 +134,16 @@ int elf_process_pheader(struct elf_file* elf_file, struct elf32_phdr* phdr)
     {
         case PT_LOAD:
             res = elf_process_phdr_pt_load(elf_file, phdr);
-            break;
+        break;
     }
+
+    return res;
 }
 
 int elf_process_pheaders(struct elf_file* elf_file)
 {
     int res = 0;
-    struct elf_header* header = elf_file(elf_file);
+    struct elf_header* header = elf_header(elf_file);
 
     for (int i = 0; i < header->e_phnum; i++)
     {
@@ -162,7 +164,7 @@ int elf_process_loaded(struct elf_file* elf_file)
     int res = 0;
     struct elf_header* header = elf_header(elf_file);
 
-    int res = elf_validate_loaded(header);
+    res = elf_validate_loaded(header);
 
     if (res < 0)
     {
@@ -198,7 +200,7 @@ int elf_load(const char* filename, struct elf_file** file_out)
     struct file_stat stat;
     res = fstat(fd, &stat);
 
-    if (res <= 0)
+    if (res < 0)
     {
         fclose(res);
         free(elf_file);
@@ -228,6 +230,7 @@ int elf_load(const char* filename, struct elf_file** file_out)
 
     *file_out = elf_file;
     fclose(fd);
+    return res;
 }
 
 void elf_close(struct elf_file* file)
