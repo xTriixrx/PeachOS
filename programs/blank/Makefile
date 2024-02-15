@@ -1,5 +1,5 @@
 FILES=obj/blank.o
-INCLUDES = -Iinclude/
+INCLUDES = -Iinclude/ -I../stdlib/include/
 
 all: ${FILES}
 	i686-elf-gcc -g -T ./linker.ld -o blank.elf -ffreestanding -O0 -nostdlib -fpic -g ${FILES} ../stdlib/stdlib.elf

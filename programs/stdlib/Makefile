@@ -1,4 +1,4 @@
-FILES=obj/start.o
+FILES=obj/start.o obj/stdlib.o
 INCLUDES = -I include/
 
 all: ${FILES}
@@ -7,6 +7,10 @@ all: ${FILES}
 obj/start.o: src/start.asm
 	mkdir -p obj/
 	nasm -f elf src/start.asm -o $@
+
+obj/stdlib.o: src/stdlib.asm
+	mkdir -p obj/
+	nasm -f elf src/stdlib.asm -o $@
 
 clean:
 	rm -rf obj/
